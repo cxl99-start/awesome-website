@@ -34,3 +34,17 @@ async def select(sql,args,size=None):
         await cur.close()
         logging.info('rows returned :%s'%len(rs))
         return rs
+
+#执行INSERT、UPDATE、DELETE语句，定义一个通用的execute()函数，这3种SQL的执行都需要相同的参数，以及返回一个整数表示影响的行数
+async def execute(sql,agrs):
+    log(sql,agrs)
+    with (await __pool) as conn:
+        try:
+            cur=await conn.cursor()
+            await cur.execute(sql.replace('?','%s'),agrs)
+            affected=cur.rowcount()
+            await cur.close()
+        except BaseException as e:
+            raise
+        return affected
+
